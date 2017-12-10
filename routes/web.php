@@ -11,10 +11,14 @@
 |
 */
 
+use App\Http\Controllers\HomeController;
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Route::group(['namespace' => 'App\Http\Controllers'], function () {
+    Auth::routes();
+});
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', HomeController::class.'@index')->name('home');
