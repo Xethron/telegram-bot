@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\Settings;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Users\User as BotManUser;
@@ -18,14 +19,12 @@ class BotmanContoller extends Controller
         /** @var BotMan $botman */
         $botman = app('botman');
 
-        $botman->hears('/getBTCEquivalent {value} {currency}', function (BotMan $bot, $value, $currency) {
-            $json = json_decode(file_get_contents('https://api.coindesk.com/v1/bpi/currentprice/'.$currency.'.json'));
-
-            $exchangeRate = $json->bpi->{$currency}->rate_float;
-
-            $valueInBtc = $value/$exchangeRate;
-
-            $bot->reply("$value $currency is ".number_format($valueInBtc, 6)." BTC (".number_format($exchangeRate, 4)." $currency - 1 BTC)");
+        $botman->hears('/getBTCEquivalent {message}', function (BotMan $bot, $message) {
+            $messageParts = explode(' ', $message);
+            if (count($messageParts) === 1) {
+                $messageParts[]  = Settings::find('currency')->value;;
+            }
+            $bot->reply($this->getBitcoinEquivalent($messageParts[0], $messageParts[1]));
         });
 
         $botman->hears('/getUserID', function (BotMan $bot) {
@@ -53,5 +52,24 @@ class BotmanContoller extends Controller
         }
 
         return $account;
+    }
+
+    /**
+     * @param $value
+     * @param $currency
+     *
+     * @return string
+     */
+    public function getBitcoinEquivalent($value, $currency)
+    {
+        $json = json_decode(file_get_contents('https://api.coindesk.com/v1/bpi/currentprice/'.$currency.'.json'));
+
+        $exchangeRate = $json->bpi->{$currency}->rate_float;
+
+        $valueInBtc = $value / $exchangeRate;
+
+        $message = "$value $currency is ".number_format($valueInBtc, 6)." BTC (".number_format($exchangeRate, 4)." $currency - 1 BTC)";
+
+        return $message;
     }
 }
