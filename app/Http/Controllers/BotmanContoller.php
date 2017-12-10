@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Account;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\Drivers\DriverManager;
+use BotMan\BotMan\Users\User as BotManUser;
 use BotMan\Drivers\Telegram\TelegramDriver;
 use Illuminate\Http\Request;
 
@@ -27,9 +29,29 @@ class BotmanContoller extends Controller
         });
 
         $botman->hears('/getUserID', function (BotMan $bot) {
-            $bot->reply(2);
+            $bot->reply($this->getAccount($bot->getUser())->id);
         });
 
         $botman->listen();
+    }
+
+    /**
+     * @param BotManUser $user
+     *
+     * @return Account
+     */
+    public function getAccount(BotManUser $user)
+    {
+        $account = Account::where('account_id', $user->getId())->first();
+
+        if (!$account) {
+            $account = new Account();
+            $account->account_id = $user->getId();
+            $account->first_name = $user->getFirstName();
+            $account->last_name = $user->getFirstName();
+            $account->save();
+        }
+
+        return $account;
     }
 }
