@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\BotConfig;
 use App\Coinbase\Coinbase;
 use App\Http\Requests\UpdateConfigRequest;
-use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
