@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Account;
-use App\Settings;
+use App\Setting;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Users\User as BotManUser;
@@ -22,7 +22,7 @@ class BotmanContoller extends Controller
         $botman->hears('/getBTCEquivalent {message}', function (BotMan $bot, $message) {
             $messageParts = explode(' ', $message);
             if (count($messageParts) === 1) {
-                $messageParts[]  = Settings::find('currency')->value;;
+                $messageParts[]  = Setting::find('currency')->value;
             }
             $bot->reply($this->getBitcoinEquivalent($messageParts[0], $messageParts[1]));
         });
