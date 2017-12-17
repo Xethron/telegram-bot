@@ -3,18 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\BotConfig;
+use App\Coinbase\Coinbase;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
     /**
+     * @var Coinbase
+     */
+    private $coinbase;
+
+    /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Coinbase $coinbase)
     {
         $this->middleware('auth');
+        $this->coinbase = $coinbase;
     }
 
     /**
@@ -37,7 +44,7 @@ class HomeController extends Controller
         $url = BotConfig::get('url');
         $token = BotConfig::get('token');
         $currency = BotConfig::get('currency');
-        $currencies = json_decode(file_get_contents('https://api.coindesk.com/v1/bpi/supported-currencies.json'));
+        $currencies = $this->coinbase->getSupportedCurrencies();
 
         return view('settings', compact('url', 'token', 'currency', 'currencies'));
     }

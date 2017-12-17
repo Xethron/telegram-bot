@@ -11,4 +11,9 @@ class Coinbase
 
         return new CurrentPrice($currency, $json);
     }
+
+    public function getSupportedCurrencies(): array
+    {
+        return json_decode(file_get_contents('https://api.coindesk.com/v1/bpi/supported-currencies.json'));
+    }
 }
