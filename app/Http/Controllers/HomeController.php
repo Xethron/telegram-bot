@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BotConfig;
 use App\Coinbase\Coinbase;
+use App\Http\Requests\UpdateConfigRequest;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -49,7 +50,7 @@ class HomeController extends Controller
         return view('settings', compact('url', 'token', 'currency', 'currencies'));
     }
 
-    public function store(Request $request)
+    public function store(UpdateConfigRequest $request)
     {
         $this->updateUrl($request->url, $request->token);
 
