@@ -35,7 +35,7 @@ class BotmanContoller extends Controller
             if (count($messageParts) === 1) {
                 $messageParts[]  = BotConfig::get('currency');
             }
-            $bot->reply($this->getBitcoinEquivalent($messageParts[0], $messageParts[1]));
+            $bot->reply($this->getBitcoinEquivalent($messageParts[0], strtoupper($messageParts[1])));
         });
 
         $botman->hears('/getUserID', function (BotMan $bot) {
