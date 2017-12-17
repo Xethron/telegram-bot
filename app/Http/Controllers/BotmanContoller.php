@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\BotConfig;
 use App\Coinbase\Coinbase;
-use App\Setting;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\LaravelCache;
@@ -13,7 +12,6 @@ use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Storages\Drivers\FileStorage;
 use BotMan\BotMan\Users\User as BotManUser;
 use BotMan\Drivers\Telegram\TelegramDriver;
-use Illuminate\Http\Request;
 
 class BotmanContoller extends Controller
 {
