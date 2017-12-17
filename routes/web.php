@@ -21,4 +21,8 @@ Route::group(['namespace' => 'App\Http\Controllers'], function () {
     Auth::routes();
 });
 
-Route::get('/home', HomeController::class.'@index')->name('home');
+Route::group(['middleware' => 'auth:web'], function () {
+    Route::get('/home', HomeController::class.'@index')->name('home');
+    Route::get('/bot-config', HomeController::class.'@edit')->name('config');
+    Route::post('/bot-config', HomeController::class.'@store');
+});

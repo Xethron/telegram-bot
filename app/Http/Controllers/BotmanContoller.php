@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Account;
+use App\BotConfig;
 use App\Setting;
 use BotMan\BotMan\BotMan;
+use BotMan\BotMan\BotManFactory;
+use BotMan\BotMan\Cache\LaravelCache;
 use BotMan\BotMan\Drivers\DriverManager;
+use BotMan\BotMan\Storages\Drivers\FileStorage;
 use BotMan\BotMan\Users\User as BotManUser;
 use BotMan\Drivers\Telegram\TelegramDriver;
 use Illuminate\Http\Request;
@@ -16,13 +20,20 @@ class BotmanContoller extends Controller
     {
         DriverManager::loadDriver(TelegramDriver::class);
 
+        $config = [
+            'telegram' => [
+                'token' => BotConfig::get('token'),
+            ]
+        ];
+
         /** @var BotMan $botman */
-        $botman = app('botman');
+        $botman =  BotManFactory::create($config, new LaravelCache(), app('request'),
+            new FileStorage(storage_path('botman')));
 
         $botman->hears('/getBTCEquivalent {message}', function (BotMan $bot, $message) {
             $messageParts = explode(' ', $message);
             if (count($messageParts) === 1) {
-                $messageParts[]  = Setting::find('currency')->value;
+                $messageParts[]  = BotConfig::get('currency');
             }
             $bot->reply($this->getBitcoinEquivalent($messageParts[0], $messageParts[1]));
         });
