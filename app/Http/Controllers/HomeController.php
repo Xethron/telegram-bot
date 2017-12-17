@@ -52,13 +52,17 @@ class HomeController extends Controller
 
     public function store(UpdateConfigRequest $request)
     {
-        $this->updateUrl($request->url, $request->token);
+        try {
+            $this->updateUrl($request->url, $request->token);
+        } catch (\Exception $e) {
+            return back()->withErrors('Could not update bot URL');
+        }
 
         BotConfig::set('url', $request->url);
         BotConfig::set('token', $request->token);
         BotConfig::set('currency', $request->currency);
 
-        return back();
+        return back()->withStatus('Success! Config has been updated.');
     }
 
     private function updateUrl($url, $token)
