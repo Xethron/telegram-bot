@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Account;
 use App\BotConfig;
+use App\Coinbase\Coinbase;
 use App\Setting;
 use BotMan\BotMan\BotMan;
 use BotMan\BotMan\BotManFactory;
@@ -16,6 +17,16 @@ use Illuminate\Http\Request;
 
 class BotmanContoller extends Controller
 {
+    /**
+     * @var Coinbase
+     */
+    private $coinbase;
+
+    public function __construct(Coinbase $coinbase)
+    {
+        $this->coinbase = $coinbase;
+    }
+
     public function handle()
     {
         DriverManager::loadDriver(TelegramDriver::class);
@@ -35,7 +46,7 @@ class BotmanContoller extends Controller
             if (count($messageParts) === 1) {
                 $messageParts[]  = BotConfig::get('currency');
             }
-            $bot->reply($this->getBitcoinEquivalent($messageParts[0], strtoupper($messageParts[1])));
+            $bot->reply($this->getBitcoinEquivalent($messageParts[0], $messageParts[1]));
         });
 
         $botman->hears('/getUserID', function (BotMan $bot) {
@@ -73,13 +84,11 @@ class BotmanContoller extends Controller
      */
     public function getBitcoinEquivalent($value, $currency)
     {
-        $json = json_decode(file_get_contents('https://api.coindesk.com/v1/bpi/currentprice/'.$currency.'.json'));
+        $currentPrice = $this->coinbase->getCurrentPrice($currency);
+        $exchangeRate = $currentPrice->getExchangeRate();
+        $valueInBtc = $currentPrice->getValueInBitcoin($value);
 
-        $exchangeRate = $json->bpi->{$currency}->rate_float;
-
-        $valueInBtc = $value / $exchangeRate;
-
-        $message = "$value $currency is ".number_format($valueInBtc, 6)." BTC (".number_format($exchangeRate, 4)." $currency - 1 BTC)";
+        $message = "$value {$currentPrice->currency} is ".number_format($valueInBtc, 6)." BTC (".number_format($exchangeRate, 4)." {$currentPrice->currency} - 1 BTC)";
 
         return $message;
     }
