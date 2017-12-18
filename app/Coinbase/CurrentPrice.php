@@ -45,7 +45,7 @@ class CurrentPrice
     {
         $getterName = 'get'.studly_case($name);
         if (method_exists($this, $getterName)) {
-            return $this->{$getterName};
+            return $this->{$getterName}();
         }
     }
 }
